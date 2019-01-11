@@ -1,0 +1,8 @@
+1，根据dockerfile生成镜像
+docker build -t mysql:5.7 .
+2, 创建本地目录（data目录所有者为id1000用户）
+mkdir -p /data/mysql/{conf,data}
+chmod -R 766 /data
+3  启动容器
+docker run -d --name mysql --network host -v /data/mysql/conf:/usr/local/mysql/conf -v /data/mysql/data:/home/mysqldata mysql:5.7
+4 mysql初始密码111111
