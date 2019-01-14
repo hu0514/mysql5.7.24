@@ -7,8 +7,7 @@ COPY ./files/setup.sh /tmp/
 
 #yum install base packages
 
-RUN	\cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
-	&& yum install -y gcc gcc-c++ ncurses-devel libxml2-devel openssl-devel curl-devel libjpeg-devel libpng-devel autoconf pcre-devel libtool-libs freetype-devel gd zlib-devel zip unzip wget crontabs iptables file bison cmake patch mlocate flex diffutils automake make  readline-devel  glibc-devel glibc-static glib2-devel  bzip2-devel gettext-devel libcap-devel logrotate openssl expect \
+RUN	yum install -y gcc gcc-c++ ncurses-devel libxml2-devel openssl-devel curl-devel libjpeg-devel libpng-devel autoconf pcre-devel libtool-libs freetype-devel gd zlib-devel zip unzip wget crontabs iptables file bison cmake patch mlocate flex diffutils automake make  readline-devel  glibc-devel glibc-static glib2-devel  bzip2-devel gettext-devel libcap-devel logrotate openssl expect \
 	&& groupadd mysql \
 	&& useradd -s /sbin/nologin -g mysql mysql \
 	&& cd /mnt \
@@ -30,9 +29,8 @@ RUN	\cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
         && rm -rf /usr/local/boost/boost_1_59_0.tar.gz \
         && rm -rf /usr/local/boost/boost_1_59_0 \
 	&& yum clean all \
-	&& rm -rf /mnt/* 
-
+	&& rm -rf /mnt/* \
+	&& \cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime 
 COPY ./files/my.cnf /usr/local/mysql/conf/
 
-CMD ["/tmp/setup.sh"]
-
+ENTRYPOINT ["/tmp/setup.sh"]
