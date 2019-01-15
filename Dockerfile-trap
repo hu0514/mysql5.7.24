@@ -32,7 +32,5 @@ RUN	yum install -y gcc gcc-c++ ncurses-devel libxml2-devel openssl-devel curl-de
 	&& rm -rf /mnt/* \
 	&& \cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime 
 COPY ./files/my.cnf /usr/local/mysql/conf/
-#COPY ./files/setup3.sh /tmp/
-#RUN  chmod 755 /tmp/setup3.sh
-#ENTRYPOINT exec /tmp/setup3.sh
+
 ENTRYPOINT ["/tmp/setup.sh"]
