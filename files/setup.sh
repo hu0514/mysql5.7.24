@@ -1,16 +1,55 @@
 #!/bin/bash
-lock=`cat /usr/local/mysql/conf/my.cnf|grep socket|awk -F"=" '{print $2}'|head -n 1`.lock
-if [ "`ls -A /home/mysqldata`" = "" ];then
-	/usr/local/mysql/bin/mysqld --initialize  --user=mysql --basedir=/usr/local/mysql --datadir=/home/mysqldata >> /tmp/mysql.log 2>&1
-	/usr/local/mysql/bin/mysqld_safe &
-	sleep 5
-	mysqladmin -uroot -p`cat /tmp/mysql.log |grep "root@localhost"|awk -F:" " {'print $2'}` password 111111
-	mysql -uroot -p111111 -e "create user 'root'@'%' identified by'111111';"
-	mysql -uroot -p111111 -e "grant all privileges on *.* to 'root'@'%' with grant option;"
-	mysql -uroot -p111111 -e "flush privileges;"
-	/usr/local/mysql/support-files/mysql.server stop
+data_path=/data/mysql5.7
+default_file=/usr/local/mysql/conf/my.cnf
+mysql_path=/usr/local/mysql
+
+if [ -z ${MYSQL_ROOT_PWD} ];then
+	MYSQL_ROOT_PWD='1234,abcd'
 fi
-if [ -f $lock ];then
-	rm -f $lock
+if [ -z ${MYSQL_ROOT_HOST} ];then
+	MYSQL_ROOT_HOST=%
 fi
-exec /usr/local/mysql/bin/mysqld 
+
+if [ ! -d ${data_path} ];then
+	mkdir -p ${data_path}
+	chmod -R 755 ${data_path}
+	chown -R mysql:mysql ${data_path}
+	cp ${default_file} /etc/my.cnf
+	${mysql_path}/bin/mysqld --initialize-insecure
+	cp ${default_file} ${data_path}/my.cnf	
+	${mysql_path}/support-files/mysql.server start
+	echo "123"
+	${mysql_path}/bin/mysqladmin -uroot password ${MYSQL_ROOT_PWD}
+	echo ${MYSQL_ROOT_PWD}
+	sql="CREATE USER 'root'@'${MYSQL_ROOT_HOST}' IDENTIFIED BY'${MYSQL_ROOT_PWD}';GRANT ALL PRIVILEGES ON *.* TO 'root'@'${MYSQL_ROOT_HOST}' WITH GRANT OPTION;FLUSH PRIVILEGES;"
+	${mysql_path}/bin/mysql -uroot -p${MYSQL_ROOT_PWD} -e "${sql}"
+	${mysql_path}/support-files/mysql.server stop
+	sleep 1
+	echo "MYSQL START SUCCESS..."
+	exec ${mysql_path}/bin/mysqld 
+elif [ ! -f ${data_path}/my.cnf ];then
+	rm -rf /etc/my.cnf
+	cp ${default_file} /etc/my.cnf
+	cp ${default_file} ${data_path}/my.cnf
+	chown mysql:mysql /etc/my.cnf
+	chmod 644 /etc/my.cnf
+        if [ -f /tmp/mysql.sock.lock ];then
+                rm -rf /tmp/mysql.sock.lock
+        fi
+	echo "MYSQL START SUCCESS..."
+	exec ${mysql_path}/bin/mysqld 
+else
+	rm -rf /etc/my.cnf
+	cp ${data_path}/my.cnf /etc/my.cnf
+	chown mysql:mysql /etc/my.cnf
+	chmod 644 /etc/my.cnf
+	echo "234"
+	if [ -f /tmp/mysql.sock.lock ];then
+		rm -rf /tmp/mysql.sock.lock
+	fi
+	echo "MYSQL START SUCCESS..."
+	exec ${mysql_path}/bin/mysqld 
+	
+fi
+
+

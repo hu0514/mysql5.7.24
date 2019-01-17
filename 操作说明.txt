@@ -4,5 +4,5 @@ docker build -t mysql:5.7 .
 mkdir -p /data/mysql/{conf,data}
 chmod -R 766 /data
 3  Æô¶¯ÈİÆ÷
-docker run -d --name mysql --network host -v /data/mysql/conf:/usr/local/mysql/conf -v /data/mysql/data:/home/mysqldata mysql:5.7
-4 mysql³õÊ¼ÃÜÂë111111
+docker run -d --name mysql --network host -v /data:/data mysql:5.7
+4 mysql³õÊ¼ÃÜÂë1234,abcd
